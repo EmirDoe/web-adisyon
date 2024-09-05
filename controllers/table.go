@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"os"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -9,11 +10,6 @@ import (
 
 func AddSingleTable(c *fiber.Ctx) error {
 	table := new(models.Table)
-	if err := c.BodyParser(table); err != nil {
-		return c.Status(400).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
 
 	// Get the latest tables number and increment it by one
 	tables, err := models.GetTables()
@@ -51,6 +47,12 @@ func GetTables(c *fiber.Ctx) error {
 }
 
 func AddTablesAtSetup(c *fiber.Ctx) error {
+	// Check if the tables are already added at setup
+	if os.Getenv("IS_INSTALLED") == "true" {
+		return c.Status(400).JSON(fiber.Map{
+			"error": "Tables are already added at setup",
+		})
+	}
 	// Get the number of tables to be added
 	tableCount := c.Params("table_count")
 

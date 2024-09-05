@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/google/uuid v1.5.0
+	github.com/joho/godotenv v1.5.1
 	go.mongodb.org/mongo-driver v1.16.1
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 )

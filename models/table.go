@@ -25,6 +25,7 @@ func AddSingleTable(table Table) (TableID string, err error) {
 	}()
 
 	table.ID = uuid.New().String()
+	table.TableStatus = "Not Occupied"
 	result, err := db.TableCollection.InsertOne(context.Background(), table)
 
 	return fmt.Sprintf("%v", result.InsertedID), err

@@ -12,5 +12,10 @@ func Routes(a *fiber.App) {
 	// Tables
 	route.Get("/tables", controllers.GetTables)
 	route.Post("/setup/tables/:table_count", controllers.AddTablesAtSetup)
+	route.Post("/table", controllers.AddSingleTable)
+
+	// Items
+	route.Post("/item/category", controllers.AddItemCategory)
+	route.Post("/item", controllers.AddItem)
 
 }

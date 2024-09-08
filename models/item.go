@@ -21,6 +21,12 @@ type Item struct {
 	ImagePath   string `json:"image" bson:"image"`
 }
 
+type ItemOnOrder struct {
+	ItemID   string `json:"item_id" bson:"item_id"`
+	Price    int    `json:"price" bson:"price"`
+	Quantity int    `json:"quantity" bson:"quantity"`
+}
+
 type ItemCategory struct {
 	ID   int    `json:"id" bson:"_id"`
 	Name string `json:"name" bson:"name"`
@@ -61,10 +67,55 @@ func AddItemCategory(category ItemCategory) (CategoryID string, err error) {
 	return fmt.Sprintf("%v", result.InsertedID), err
 }
 
+func UpdateItemCategory(categoryID int, category ItemCategory) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = errors.New("Error in UpdateItemCategory")
+		}
+	}()
+
+	_, err = db.ItemCategoryCollection.UpdateOne(context.Background(), map[string]interface{}{"_id": categoryID}, map[string]interface{}{"$set": category})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteItemCategory(categoryID int) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = errors.New("Error in DeleteItemCategory")
+		}
+	}()
+
+	_, err = db.ItemCategoryCollection.DeleteOne(context.Background(), map[string]interface{}{"_id": categoryID})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetItemCategory(categoryID int) (category ItemCategory, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = errors.New("Error in GetItemCategory")
+		}
+	}()
+
+	err = db.ItemCategoryCollection.FindOne(context.Background(), map[string]interface{}{"_id": categoryID}).Decode(&category)
+	if err != nil {
+		return ItemCategory{}, err
+	}
+
+	return category, nil
+}
+
 func GetItemCategories() (categories []ItemCategory, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = errors.New("Error in GetItemCategories")
+			err = errors.New("error in GetItemCategories")
 		}
 	}()
 
@@ -96,6 +147,56 @@ func AddItem(item Item) (ItemID string, err error) {
 	result, err := db.ItemCollection.InsertOne(context.Background(), item)
 
 	return fmt.Sprintf("%v", result.InsertedID), err
+}
+
+func UpdateItem(itemID string, item Item) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = errors.New("Error in UpdateItem")
+		}
+	}()
+
+	_, err = db.ItemCollection.UpdateOne(context.Background(), map[string]interface{}{"_id": itemID}, map[string]interface{}{"$set": item})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteItem(itemID string) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = errors.New("Error in DeleteItem")
+		}
+	}()
+
+	_, err = db.ItemCollection.DeleteOne(context.Background(), map[string]interface{}{"_id": itemID})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetItems() (items []Item, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = errors.New("Error in GetItems")
+		}
+	}()
+
+	cursor, err := db.ItemCollection.Find(context.Background(), map[string]interface{}{})
+	if err != nil {
+		return nil, err
+	}
+
+	err = cursor.All(context.Background(), &items)
+	if err != nil {
+		return nil, err
+	}
+
+	return items, nil
 }
 
 func GetItemByCategory(category int) (items []Item, err error) {
@@ -131,34 +232,4 @@ func GetItemByID(itemID string) (item Item, err error) {
 	}
 
 	return item, nil
-}
-
-func UpdateItem(itemID string, item Item) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = errors.New("Error in UpdateItem")
-		}
-	}()
-
-	_, err = db.ItemCollection.UpdateOne(context.Background(), map[string]interface{}{"_id": itemID}, map[string]interface{}{"$set": item})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func DeleteItem(itemID string) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = errors.New("Error in DeleteItem")
-		}
-	}()
-
-	_, err = db.ItemCollection.DeleteOne(context.Background(), map[string]interface{}{"_id": itemID})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

@@ -16,11 +16,12 @@ var (
 	Client                 *mongo.Client
 	Context                context.Context
 	CancelFunc             context.CancelFunc
+	UserCollection         *mongo.Collection
 	TableCollection        *mongo.Collection
 	MenuCollection         *mongo.Collection
 	ItemCollection         *mongo.Collection
 	ItemCategoryCollection *mongo.Collection
-	OrderHistory           *mongo.Collection
+	OrderCollection        *mongo.Collection
 )
 
 func Setup() {
@@ -30,14 +31,17 @@ func Setup() {
 		log.Fatalf("Error loading .env file")
 	}
 	uri := os.Getenv("MONGO_URI")
+
 	// Setup the database
 	Client, Context, CancelFunc = getConnection(uri)
 	getCollections()
+
+	UserCollection.Database().Client().Ping(Context, nil)
 	TableCollection.Database().Client().Ping(Context, nil)
 	MenuCollection.Database().Client().Ping(Context, nil)
 	ItemCollection.Database().Client().Ping(Context, nil)
 	ItemCategoryCollection.Database().Client().Ping(Context, nil)
-	OrderHistory.Database().Client().Ping(Context, nil)
+	OrderCollection.Database().Client().Ping(Context, nil)
 
 }
 
@@ -58,12 +62,14 @@ func getConnection(uri string) (*mongo.Client, context.Context, context.CancelFu
 }
 
 func getCollections() {
-	databaseName := "web-adisyon"
+
+	databaseName := os.Getenv("MONGO_DB_NAME")
 	database := Client.Database(databaseName)
 
+	UserCollection = database.Collection("users")
 	TableCollection = database.Collection("tables")
 	MenuCollection = database.Collection("menus")
 	ItemCollection = database.Collection("items")
 	ItemCategoryCollection = database.Collection("item_categories")
-	OrderHistory = database.Collection("order_history")
+	OrderCollection = database.Collection("order_history")
 }
